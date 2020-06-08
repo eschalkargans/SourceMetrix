@@ -36,6 +36,7 @@ def printUsage():
     print "  --verbose              enable more elaborative output"
     print "  -v, --version          print version information and exit"
     print "  -o, --outfile=OUTFILE  instead of overwriting csv-foile write content to OUTFILE"
+    print "  -t, --tagname=TAGNAME  use TAGNAME instead of 'tag'"
     print "Tags can be added, deleted or modified for a single file, a group of files or a list of files."
     # print "The generic format is <OPERATOR><SELECTOR>=<TAG>, where"
     # print "  <OPERATOR> can be one of {'+', '-', '@'}"
@@ -79,10 +80,10 @@ def log(level, message):
 # supported command line arguments). Name of the csv-file is a mandatroy argument. It checks for readability of the csv-file.
 ##
 def scanArguments():
-    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE
+    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE, TAG_NAME
 
-    shortOptions = "hva:r:c:o:"
-    longOptions = ["help", "version", "verbose", "silent", "add=", "remove=", "change=", "outfile="]
+    shortOptions = "hva:r:c:o:t:"
+    longOptions = ["help", "version", "verbose", "silent", "add=", "remove=", "change=", "outfile=", "tagname="]
     opts = []
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], shortOptions, longOptions)
@@ -112,6 +113,11 @@ def scanArguments():
             LOGLEVEL = loglevels["silent"]
         elif opt in ("--outfile", "-o"):
             OUTFILE = arg
+        elif opt in ("--tagname", "-t"):
+            if not arg.strip().isalnum():
+                log(0, "Tagname may only consist of alphanumeric characters: " + arg)
+            else:
+                TAG_NAME = arg.strip()
         elif opt in ("--add", "-a"):
             if not tag.isalnum():
                 log(0, "Tag may only consist of alphanumeric characters: " + tag)
@@ -135,38 +141,6 @@ def scanArguments():
         if not os.path.isfile(CSV_FILE):
             log(0, "Unable to open csv-file : " + CSV_FILE)
 
-def alternativeSyntax():    
-    if len(remainder) == 0:
-        log (0, "No operator specified.")
-
-    # remainder must be parsed as list of <OPERATOR><SELECTOR>=<TAG>-tuples
-    for tup in remainder:
-        selector = ""
-        tag = ""
-        old_tag = ""
-        new_tag = ""
-
-        selector, tag = tup[1:].split('=', 1)
-
-        if tup[0] == '+':
-            if not tag.isalnum():
-                log(0, "Tag must only consist of alphanumeric characters: " + tag)
-            else: 
-                addTag(selector, tag)
-        elif tup[0] == "-":
-            if not tag.isalnum():
-                log(0, "Tag must only consist of alphanumeric characters: " + tag)
-            else: 
-                removeTag(selector, tag)
-        elif tup[0] == '@':
-            old_tag, new_tag = tag.split(':', 1)
-            if not (old_tag.isalnum() and new_tag.isalnum):
-                log(0, "Tag must only consist of alphanumeric characters: " + tag)
-            else: 
-                changeTag(selector, old_tag, new_tag)
-        else:
-            log(0, "Unrecognized operator '" + tup[0] + "'")
-
 ##
 # Read in complete content of csv-file into global variable DATASETS. All consecutive operations shall operate on DATASETS.
 ##
@@ -186,28 +160,28 @@ def readCSVfile():
 # in the list of tags it will be duplicated).
 ##
 def addTag(selector, tag):
-    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE, DATASETS
+    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE, DATASETS, TAG_NAME
 
     tag_index = 0
     needs_append = False
-    log(2, "Adding tag '" + tag + "' to selector " + selector)
+    log(1, "Adding " + TAG_NAME + " '" + tag + "' to selector " + selector)
     line_count = 0
     for row in DATASETS:
         # first row contains header defintion
         if line_count == 0:
-            # if there is no column 'tag'
-            if not "tag" in row:
+            # if there is no column TAG_NAME
+            if not TAG_NAME in row:
                 # add such a row and raise marker
-                row.append("tag")
+                row.append(TAG_NAME)
                 needs_append = True
             # in any case we need to know index of col 'tag'
-            tag_index = row.index("tag")
+            tag_index = row.index(TAG_NAME)
         else:
-            # when filename matches selectro
+            # when filename matches selector
             if fnmatch.fnmatch(row[0], selector):
                 # if we need to append a col
                 if needs_append:
-                    row.append(u" "+ tag)
+                    row.append(u" " + tag)
                 else:
                     # add tag to the existing content of col 'tag'
                     row[tag_index] = row[tag_index] + u" " + tag
@@ -226,20 +200,22 @@ def addTag(selector, tag):
 # it (only first occurence will be removed).
 ##
 def removeTag(selector, tag): 
+    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE, DATASETS, TAG_NAME
+
     tag_index = 0
     needs_append = False
-    log(2, "Removing tag '" + tag + "' from selector " + selector)
+    log(1, "Removing tag '" + tag + "' from selector " + selector)
     line_count = 0
     for row in DATASETS:
         # first row contains header defintion
         if line_count == 0:
-            # if there is no column 'tag'
-            if not "tag" in row:
+            # if there is no column TAG_NAME
+            if not TAG_NAME in row:
                 # add such a row and raise marker
-                row.append("tag")
+                row.append(TAG_NAME)
                 needs_append = True
             # in any case we need to know index of col 'tag'
-            tag_index = row.index("tag")
+            tag_index = row.index(TAG_NAME)
         else:
             if not needs_append:
                 # when filename matches selectro
@@ -261,20 +237,22 @@ def removeTag(selector, tag):
 # selector matches filename in first col. If so check if 'pld_tag' is in the whitespace separated list and 
 # replace by 'new_tag' (only first occurence will be replaced).
 def changeTag(selector, old_tag, new_tag):
+    global LOGLEVEL, ADD_LIST, REMOVE_LIST, CHANGE_LIST, OUTFILE, CSV_FILE, DATASETS, TAG_NAME
+
     tag_index = 0
     needs_append = False
-    log(2, "Replacing tag '" + old_tag + "' by '" + new_tag + "' at selector " + selector)
+    log(1, "Replacing tag '" + old_tag + "' by '" + new_tag + "' at selector " + selector)
     line_count = 0
     for row in DATASETS:
         # first row contains header defintion
         if line_count == 0:
-            # if there is no column 'tag'
-            if not "tag" in row:
+            # if there is no column TAG_NAME
+            if not TAG_NAME in row:
                 # add such a row and raise marker
-                row.append("tag")
+                row.append(TAG_NAME)
                 needs_append = True
             # in any case we need to know index of col 'tag'
-            tag_index = row.index("tag")
+            tag_index = row.index(TAG_NAME)
         else:
             if not needs_append:
                 # when filename matches selectro
@@ -298,6 +276,7 @@ CSV_FILE = ""
 ## Filename of the output file
 OUTFILE = ""
 # OUTPUT = []
+TAG_NAME = "tag"
 
 ##
 # Iterate through 'theList': for every entry check if 'selector' starts with '#', if so 
@@ -316,7 +295,7 @@ def expandedList(theList):
                     ret.append(newEntry)
                 selector_file.close()
             except:
-                log(0, "Referenced selector file not accesssible: " + selector[1:])
+                log(0, "Referenced selector file not found: " + selector[1:])
         else:
             ret.append(entry)
     return ret
