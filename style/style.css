@@ -1,0 +1,197 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  color: dimgrey;
+  font-size: 0.9em;
+}
+
+iframe { border: none; }
+
+.main {
+  display: grid;
+  grid-template-columns: 2fr 3fr;	
+  grid-template-rows: 80px auto 1fr 2fr 100px;
+}
+
+#wrapper {
+  margin: 5px auto;
+  text-align: center;
+  grid-column: 2;
+  grid-row:    2 / span 2;				
+}
+
+#filelist_wrapper {
+  margin: 5px auto;
+  text-align: left;
+  grid-column: 1;
+  grid-row:    2 / span 3;				
+}
+
+#filelist_header {
+  text-align: left;
+  margin: 0.1em;
+  border: 1px solid;
+  border-radius: 0 0.5em 0.5em 0.5em;
+  border-color: #D5D5D5;
+  background-color: #F1F3F4;
+  padding: 0.3em;
+  display: block;
+}
+
+#filelist_body {
+  margin: 5px auto;
+  text-align: left;
+  font-size: smaller;
+}
+
+navigation {
+  grid-column: 1 / span 2;
+  grid-row:    1;					
+  text-align: center;
+}
+
+#nav_linklist {
+  margin: 0;
+  border: 1px solid;
+  border-radius: 0 0 0.5em 0.5em;
+  border-color: #D5D5D5;
+  background-color: #F1F3F4;
+  padding: 0.3em;
+  display: block;
+  text-align: justify;
+}
+#nav_linklist>a {
+  text-decoration: none;
+  padding-right: 0.5em;
+  border-right: 1px solid dimgray;
+}
+#nav_linklist>a:nth-last-of-type(1) {
+  text-decoration: none;
+  border-right: none;
+}
+
+footer {
+  grid-column: 1 / span 2;
+  grid-row:    4;					
+}
+
+/* non-selected entry in filelist */
+.tooltip {
+  color: rgb(116, 116, 116);
+}
+/* selected entry in filelist */
+.tooltip:hover {
+  color: black;
+  position: relative;  
+}
+.tooltip span[role=tooltip] {
+  display:none;
+}
+.tooltip:hover span[role=tooltip] {
+  display: block;  
+  position: absolute; 
+  bottom: 0.9em;
+  left: 10em;
+	width: 8em;
+  padding: 0.5em;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  color: white; 
+	border-radius: 0.5em 0.5em 0.5em 0; 
+}
+
+/* #details_wrapper referrs to the part of grid layout, where detailed information are displayed
+ */
+#details_wrapper {
+  margin: 5px auto;
+  text-align: left;
+  grid-column: 2;
+  grid-row:    4;
+}
+.details_head {
+  border: 1px solid;
+  border-color: black;
+  border-radius: 0.5em 0.5em 0 0;
+  padding: 0.3em;
+  background-color: grey;
+  color: whitesmoke;
+  width: 100%;
+}
+/* .detail_wrapper formats the heading of every details section
+ */
+.detail_wrapper {
+  display: block;
+  margin: 0;
+  border: 1px solid;
+  border-radius: 0 0 0.5em 0.5em;
+  border-color: #D5D5D5;
+  background-color: #F1F3F4;
+  padding: 0.3em;
+}
+.detail_wrapper>a {
+  text-decoration: none;
+  text-align: right;
+}
+/* span.detail_type_region {
+} */
+span.detail_std_code_lines_code {
+  margin: 0.1em;
+  border: 1px solid;
+  border-color: blue;
+  padding: 0.1em;
+  background-color: lightblue;
+}
+span.detail_std_code_complexity_cyclomatic {
+  margin: 0.1em;
+  border: 1px solid;
+  border-color: red;
+  padding: 0.1em;
+  background-color: orange;
+}
+span.detail_std_code_filelines_comments{
+  margin: 0.1em;
+  border: 1px solid;
+  border-color: green;
+  padding: 0.1em;
+  background-color: lightgreen;
+}
+
+/* line numbers for sourcecode */
+code>span:before {
+  content: attr(title)':';
+  padding: 0;
+  margin: 0 .5em 0 auto;
+  font-weight: bold;
+  color: dimgray;
+}
+
+h1 {
+  font-weight: 200;
+  font-size: 3em;
+  margin: 0;
+  border: 1px solid;
+  border-color: black;
+  border-radius: 0.5em 0.5em 0 0;
+  padding: 0.1em;
+  background-color: grey;
+  color: whitesmoke;
+}
+
+h2 {
+  font-weight: 200;
+  font-size: 1.5em;
+  margin: 0 0 50px;
+}
+
+h3 {
+  font-weight: 200;
+  font-size: 0.9em;
+  margin: 0 0 50px;
+}
+
+p {
+  font-weight: 200;
+  font-size: 0.9em;
+}
