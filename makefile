@@ -1,5 +1,5 @@
 # makefile for generating metrix++ based html output.
-# (c) 2020 BHTC GmbH, Marc Stoerzel
+# (c) 2020 Marc Stoerzel
 
 # Suppress display of executed commands.
 $(VERBOSE).SILENT:
@@ -12,8 +12,8 @@ ANALYSE=script/canalyse.py
 CHARTMINJS=https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
 
 # path from where to start analysis of sourceceode
-SRCPATH=./../../../SW/Public
-MODULE_BASE=30_Appl
+SRCPATH=./example-code/insecure-coding-examples-master
+MODULE_BASE=exploit
 
 # configure directories
 REPORTDIR=html
@@ -51,7 +51,7 @@ all: check directories indexfile
 
 criterias: cyclomatic code_loc comments
 	$(call generate_detailedDatafile)
-	$(PYTHON) $(ANALYSE) --verbose --srcpath=$(SRCPATH) --modulebase=$(MODULE_BASE) --datadir=$(DATADIR) --reportdir=$(REPORTDIR) --installdir=$(INSTALLDIR) --highlight-css=$(HIGHLIGHT_CSS) --styledir=$(STYLEDIR)
+	$(PYTHON) $(ANALYSE) --srcpath=$(SRCPATH) --modulebase=$(MODULE_BASE) --datadir=$(DATADIR) --reportdir=$(REPORTDIR) --installdir=$(INSTALLDIR) --highlight-css=$(HIGHLIGHT_CSS) --styledir=$(STYLEDIR)
 
 indexfile: indexfile_start criterias indexfile_end
 
@@ -95,7 +95,7 @@ indexfile_start:
 	echo        $(criteria_nav) >> $(REPORTDIR)/index.html
 	echo "      powered by <a href='https://metrixplusplus.github.io/home.html'>Metrix++</a></span>" >> $(REPORTDIR)/index.html
 	echo "    </navigation>"  >> $(REPORTDIR)/index.html
-	echo "	  <iframe id='wrapper' height='100%' width='100%' src='$(REPORTDIR_ABS)/30_Appl.std.code.complexity.cyclomatic.html' name='criteria_frame'></iframe>" >> $(REPORTDIR)/index.html
+	echo "	  <iframe id='wrapper' height='100%' width='100%' src='$(REPORTDIR_ABS)/$(MODULE_BASE).std.code.complexity.cyclomatic.html' name='criteria_frame'></iframe>" >> $(REPORTDIR)/index.html
 
 cyclomatic:	CRITERIA=std.code.complexity.cyclomatic
 cyclomatic: CRITERIA_LABEL="cyclomatic complexity"
