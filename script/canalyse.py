@@ -96,8 +96,10 @@ def copyCode2HTML(path, destfilename, srcfilename, region, type, line_start, lin
             i = 0
             for criteriaValue in criterias:
                 if not criteriaValue == "":
-                    destfile.write(u"<span class='detail_" + labels[i].replace(".", "_") + u"'>")
-                    destfile.write(CRITERIA_LABELS[labels[i]] + u": " + str(criteriaValue) + u"</span>\n")
+                    if i < len(labels):
+                        if CRITERIA_LABELS.has_key(labels[i]):
+                            destfile.write(u"<span class='detail_" + labels[i].replace(".", "_") + u"'>")
+                            destfile.write(CRITERIA_LABELS[labels[i]] + u": " + str(criteriaValue) + u"</span>\n")
                 i += 1
             if region == "" or region == "__global__":
                 # __global__ line count bug
