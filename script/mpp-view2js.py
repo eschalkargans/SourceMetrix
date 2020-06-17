@@ -110,7 +110,7 @@ def log(level, message):
 def scanArguments():
     global REPORTDIR_REL, STYLEDIR, LOGLEVEL, MODULE_BASE, REPORTDIR_REL, DATADIR, IN_FILENAME, CRITERIA_LABELS, GEN_DATAFILE_ONLY, DIAG_WIDTH, DIAG_HEIGHT, CHARTMINJS
     shortOptions = "hvs:r:m:d:y:l:c:w:t:"
-    longOptions = ["help", "version", "verbose=", "silent", "srcpath=", "reportdir=", "modulebase=", "datadir=", "styledir=", \
+    longOptions = ["help", "version", "verbose", "silent", "srcpath=", "reportdir=", "modulebase=", "datadir=", "styledir=", \
         "criteria-labels=", "gen-datafile-only", "chart-js=", "diagram-width=", "diagram-height="]
     opts = []
     args = []
@@ -183,7 +183,7 @@ def scanArguments():
 ##
 def parseViewOutput(in_filename, criteria):
     ret = {"avg": 0.0, "min": 0, "max": 0, "tot": 0, "code": ""}
-    log(2, "Parsing file " + in_filename)
+    log(2, "Parsing file " + in_filename + " for criteria " + criteria)
     with open(in_filename, 'r') as pyFile:
         pyCode = pyFile.readline()
         try:
