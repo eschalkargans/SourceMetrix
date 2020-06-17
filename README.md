@@ -8,9 +8,9 @@ The output of metrix++ 'view' and 'export' commands is used to create statically
 The visual appearance (web page look) can be controlled by CSS styling plus settings in a file called 'diagram_style.js'. Both files are located in subfolder 'style' (if not configured otherwise in makefile).
 
 ## HOW TO USE
-Download or copy all files of this package into a folder of your choice (referred to as /installation folder/). In the installation folder there's a makefile, which can be edited as a text file. You may have to adjust some path settings, i. e. paths where python and metrix++ are installed to or the root folder of the sourcecode you want to analyse ('SRCPATH').
+Download or copy all files of this package into a directory of your choice (referred to as /installation directory/). In the installation folder there's a makefile, which can be edited as a text file. You may have to adjust some path settings, i. e. paths where python and metrix++ are installed to or the root folder of the sourcecode you want to analyse ('SRCPATH').
 
-After doing these configuration it is as simple as running 'make all' in the folder where the makefile is located. This shall generated a set of html files in the subfolder 'html' (by default) of your /installation folder/. Open this in a browser with 'javascript enabled' shall give you full access on your code analysis features.
+After doing these configuration it is as simple as running 'make all' in the folder where the makefile is located. This shall generated a set of html files in the subfolder 'html' (by default) of your /installation directory/. Opening this in a browser with 'javascript enabled' shall give you full access on your code analysis features.
 
 ## HOW IT WORKS
 The central makefile runs metrix++ in the background and creates an index.html and other html and javascript (*.js) files. The file 'index.html' serves as the starting point for the WUI (Web User Interface). It incorporates chart.js, the CSS file style.css and diagram_style.js. Where the CSS file can be used pretty forward to adopt visual appearance of the various html elements (cf. section on style.css for details), the diagram_style.js file gives reference to which analysis criteria are viewable and how according diagrams are styled.
@@ -18,7 +18,7 @@ The central makefile runs metrix++ in the background and creates an index.html a
 ## WHAT YOU GET
 Central file is the makefile in the /installation directory/. By editing the makefile you can adjust most of the other file locations. By default directory layout is as follows:
 <pre>
-    /installation folder/
+    /installation directory/
       +--makefile
       +--data
       |   +-- #generated .csv and .js files get here
@@ -71,18 +71,21 @@ The additional targets 'indexfile', 'indexfile_start' and 'indexfile_end' build 
 
 #### makefile settings
 By editing the makefile in a text editor you may alter the following settings:
-METRIXPP        path pointing to metrix++.py
-PYTHON          path pointing to Python interpreter
-CHARTMINJS      URL where to get chart.min.js from
-SRCPATH         path from where to start analysis of sourceceode
-MODULE_BASE     sourcecode is assumed to belong to a module (or application)
-REPORTDIR       directory to store generated html files to 
-DATADIR         directory to store intermediate files generated from data collected by metrix++
-STYLEDIR        html styling and diagram styling settings get here
-SCRIPTDIR       directory containing filelist.js and other non-generated javascript code
-CRITERIA_LIST   list of space separated code metrics arguments to passs to 'collect' function of metrix++ DIAGRAM_STYLE   name of javascript filename defining the diagrams colors and datasource
-CANVAS_WIDTH    width of each diagram created for the overview
-CANVAS_HEIGHT   height of each diagram created for the overview
+- METRIXPP        path pointing to metrix++.py
+- PYTHON          path pointing to Python interpreter
+- CHARTMINJS      URL where to get chart.min.js from
+- SRCPATH         path from where to start analysis of sourceceode
+- MODULE_BASE     sourcecode is assumed to belong to a module (or application)
+- REPORTDIR       directory to store generated html files to 
+- DATADIR         directory to store intermediate files generated from data collected by metrix++
+- STYLEDIR        html styling and diagram styling settings get here
+- INSTALLDIR      path where highlight.js is installed to
+- HIGHLIGHT_CSS   stylesheet to use by highlight.js for sourcecode highlighting
+- SCRIPTDIR       directory containing filelist.js and other non-generated javascript code
+- CRITERIA_LIST   list of space separated code metrics arguments to passs to 'collect' function of metrix++ 
+- DIAGRAM_STYLE   name of javascript filename defining the diagrams colors and datasource
+- CANVAS_WIDTH    width of each diagram created for the overview
+- CANVAS_HEIGHT   height of each diagram created for the overview
 
 # RELEASE LOG
 
