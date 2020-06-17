@@ -3,7 +3,7 @@
 ##
 # @file canalyse.py
 # @copyright (c) 2020 Marc Stoerzel
-# @brief Parses the cvs output of metrix++ to generate HTML-files and optionally a Javascript datafile.
+# @brief Parses the csv output of 'metrix++ export' to generate sourcecode HTML-files and optionally a Javascript datafile.
 #
 #  include{doc} ../README.md
 ##
@@ -17,13 +17,21 @@ import getopt
 import sys
 import ast
 
+## path from where to start analysis of sourceceode
 SRCPATH = "./../../../SW/Public"
+## sourcecode is assumed to belong to a module (or application); adds as suffix to SRCPATH
 MODULE_BASE = "30_Appl"
+## directory to store intermediate files generated from data collected by metrix++
 DATADIR_REL = "./data"
+## directory to store generated html files to
 REPORTDIR_REL = "./html"
+## path where highlight.js is installed to
 HIGHLIGHT_REL = "./highlight"
+## stylesheet to use by highlight.js for sourcecode highlighting
 HIGHLIGHT_CSS = "styles/vs.css"
+## html styling and diagram styling settings get here
 STYLE_REL = "./style"
+## dictionary assigning criteria mnenonics to more human readable format 
 CRITERIA_LABELS = {"std.code.complexity.cyclomatic" : "cyclomatic complexity", \
 "std.code.filelines.comments" : "lines of comment", \
 "std.code.lines.code" : "lines of code"}
@@ -256,7 +264,7 @@ def printUsage():
     print "  -y, --styledir=DIR         directory containing the generic style.css file"
     print "                                  defaults to:", STYLE_REL
     print "  -l, --criteria-labels=DICT dictionary, where "
-    print "                                 key = mnemnonic of te criteria and "
+    print "                                 key = mnemnonic of the criteria and "
     print "                                 value = human readable label"
     print "                                 defaults to:", CRITERIA_LABELS
 
@@ -283,6 +291,8 @@ def dumpParameters():
 def log(level, message):
     if LOGLEVEL >= level:
         print(message)
+    if (level) < 0:
+        sys.exit(-level)
 
 ##
 # Scan commandline arguments.
@@ -335,10 +345,12 @@ def scanArguments():
             try:
                 CRITERIA_LABELS = ast.literal_eval(a)
             except:
-                print "error while trying to parse following argument for 'criteria-labels':", a
-                sys.exit()
+                log(-1, "Error while trying to parse following argument for 'criteria-labels':" + str(a))
         elif o == "--gen-datafile-only":
             GEN_DATAFILE_ONLY = True
+
+        if len(remainder) > 0:
+            log(-1, "Unrecogniozed argument: " + str(remainder))
 
 ##
 # Iterate over the global filelist and generate an HTML-file for each entry.
