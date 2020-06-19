@@ -14,10 +14,10 @@ ANALYSE=script/canalyse.py
 CHARTMINJS=https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
 
 # path from where to start analysis of sourceceode
-#SRCPATH=./example-code/insecure-coding-examples-master
-#MODULE_BASE=exploit
-SRCPATH=./../../../SW/Public
-MODULE_BASE=30_Appl
+SRCPATH=./example-code/insecure-coding-examples-master
+MODULE_BASE=exploit
+#SRCPATH=./../../../SW/Public
+#MODULE_BASE=30_Appl
 
 # configure directories
 REPORTDIR=./html
