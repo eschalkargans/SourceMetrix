@@ -63,11 +63,7 @@ It holds the navigation part consisting of the headline reading the module's nam
 It splits up the WUI by /iframes/, one for the overview area and another one for the details area. The indexfile itself builds up the filelist by including 'filelist.js'.
 
 ### MAKEFILE
-The makefile consists of a configuration part, defintion of some generic and some specific targets and the defintion of functions used by the targets. The generic targets are standard targets like 'all' (which is first defined target and therefore default), 'clean' and other helpful targets like 'check' to check for prerequisits like installed and runnable metrix++, or 'directories' to check for and create defined directories.
-
-The specific target 'criterias:' must list as prerequisits targets for all criterias which shall show up in the analysis. Fo reach criteria a target has to be defined setting the variables 'CRITERIA' and 'CRITERIA_LABEL' to specific values and calling 'generate_criteriaHTML'.
-
-The additional targets 'indexfile', 'indexfile_start' and 'indexfile_end' build the file 'index.html' according to the settings in this makefile.
+The makefile consists of a configuration part, defintion of some generic and some specific targets. The generic targets are standard targets like 'all' (which is first defined target and therefore default), 'clean' and other helpful targets like 'check' to check for prerequisits like installed and runnable metrix++, or 'directories' to check for and create defined directories.
 
 #### makefile settings
 By editing the makefile in a text editor you may alter the following settings:
@@ -88,6 +84,9 @@ By editing the makefile in a text editor you may alter the following settings:
 - CANVAS_HEIGHT   height of each diagram created for the overview
 
 # RELEASE LOG
+
+## v.0.2.0 2020-06-18
+- replaced the use of functions defined in makefile by use of Python scripts
 
 ## 2020-06-04
 - sourccode view shows up with line numbers
