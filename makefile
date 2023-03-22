@@ -5,19 +5,25 @@
 $(VERBOSE).SILENT:
 
 # settings to invoke metrix++; adapt path if necessary
-PYTHON=/usr/bin/python
-METRIXPP=/opt/metrixplusplus/metrix++.py
+# PYTHON=/usr/bin/python
+# METRIXPP=/opt/metrixplusplus/metrix++.py
 METRIXDB=metrixpp.db
+
+PYTHON=$(shell where python)
+METRIXPP="/d/Profils/eschalk/dev/tools/metrixplusplus/metrix++.py"
 
 ANALYSE=script/canalyse.py
 
 CHARTMINJS=https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
 
 # path from where to start analysis of sourceceode
-SRCPATH=./example-code/insecure-coding-examples-master
-MODULE_BASE=exploit
+# SRCPATH=./example-code/insecure-coding-examples-master
+# MODULE_BASE=exploit
 #SRCPATH=./../../../SW/Public
 #MODULE_BASE=30_Appl
+
+SRCPATH='/d/Profils/eschalk/dev/cs/Project Documentation/Requests from Bidders/Source Codes/S2_L1L2'
+MODULE_BASE=
 
 # configure directories
 REPORTDIR=./html
