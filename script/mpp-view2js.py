@@ -19,26 +19,73 @@ REPORTDIR_REL = "./html"
 DATADIR = "./data"
 STYLEDIR = "./style"
 IN_FILENAME = DATADIR + os.sep + MODULE_BASE + ".py"
+
+CRITERIA_LABELS_SET = set(
+    (
+        "std.code.complexity.cyclomatic",
+        "std.code.complexity.maxindent",
+        "std.code.filelines.code",
+        "std.code.filelines.preprocessor",
+        "std.code.filelines.comments",
+        "std.code.filelines.total",
+        "std.code.length.total",
+        "std.code.lines.code",
+        "std.code.lines.preprocessor",
+        "std.code.lines.comments",
+        "std.code.lines.total",
+        "std.code.longlines",
+        "std.code.longlines.limit=120",
+        "std.code.magic.numbers",
+        "std.code.magic.numbers.simplier",
+        "std.code.member.fields",
+        "std.code.member.globals",
+        "std.code.member.classes",
+        "std.code.member.structs",
+        "std.code.member.interfaces",
+        "std.code.member.types",
+        "std.code.member.methods",
+        "std.code.member.namespaces",
+        "std.code.maintindex.simple",
+        "std.code.ratio.comments",
+        "std.code.todo.comments",
+        "std.code.todo.strings",
+        "std.suppress",
+        "std.general.procerrors",
+        "std.general.size",
+    )
+)
+
 CRITERIA_LABELS = {
-    "std.code.complexity.cyclomatic": {
-        "label": "cyclomatic complexity",
+    key: {
+        "label": key,
         "background-color": "orange",
         "border-color": "red",
-        "index": 6,
-    },
-    "std.code.filelines.comments": {
-        "label": "lines of comment per file",
-        "background-color": "lightgreen",
-        "border-color": "green",
-        "index": 7,
-    },
-    "std.code.lines.code": {
-        "label": "lines of code per file",
-        "background-color": "lightblue",
-        "border-color": "blue",
-        "index": 8,
-    },
+        "index": idx,
+    }
+    for idx, key in enumerate(CRITERIA_LABELS_SET)
 }
+
+
+# CRITERIA_LABELS = {
+#     "std.code.complexity.cyclomatic": {
+#         "label": "cyclomatic complexity",
+#         "background-color": "orange",
+#         "border-color": "red",
+#         "index": 6,
+#     },
+#     "std.code.filelines.comments": {
+#         "label": "lines of comment per file",
+#         "background-color": "lightgreen",
+#         "border-color": "green",
+#         "index": 7,
+#     },
+#     "std.code.lines.code": {
+#         "label": "lines of code per file",
+#         "background-color": "lightblue",
+#         "border-color": "blue",
+#         "index": 8,
+#     },
+# }
 
 _loglevels = {"error": -1, "silent": 0, "standard": 1, "verbose": 2}
 LOGLEVEL = _loglevels["standard"]
@@ -271,13 +318,15 @@ def parseViewOutput(in_filename, criteria):
                         + CRITERIA_LABELS[criteria]["label"]
                         + "'",
                     )
-                    ret["avg"] = float(detail_data["avg"])
+                    ret["avg"] = float(detail_data["avg"]) if detail_data["avg"] else 0
                     log(3, "\tAverage: " + str(ret["avg"]))
-                    ret["min"] = int(detail_data["min"])
+                    ret["min"] = int(detail_data["min"]) if detail_data["min"] else 0
                     log(3, "\tMinimum: " + str(ret["min"]))
-                    ret["min"] = int(detail_data["max"])
+                    ret["min"] = int(detail_data["max"]) if detail_data["max"] else 0
                     log(3, "\tMaximum: " + str(ret["max"]))
-                    ret["tot"] = int(detail_data["total"])
+                    ret["tot"] = (
+                        int(detail_data["total"]) if detail_data["total"] else 0
+                    )
                     log(3, "\tTotal: " + str(ret["tot"]))
                     for bar in detail_data["distribution-bars"]:
                         values.append(bar["count"])

@@ -33,9 +33,39 @@ HIGHLIGHT_CSS = "styles/vs.css"
 STYLE_REL = "./style"
 ## dictionary assigning criteria mnenonics to more human readable format
 CRITERIA_LABELS = {
-    "std.code.complexity.cyclomatic": "cyclomatic complexity",
-    "std.code.filelines.comments": "lines of comment",
-    "std.code.lines.code": "lines of code",
+    # "std.code.complexity.cyclomatic": "cyclomatic complexity",
+    # "std.code.filelines.comments": "lines of comment",
+    # "std.code.lines.code": "lines of code",
+    "std.code.complexity.cyclomatic": "std.code.complexity.cyclomatic",
+    "std.code.complexity.maxindent": "std.code.complexity.maxindent",
+    "std.code.filelines.code": "std.code.filelines.code",
+    "std.code.filelines.preprocessor": "std.code.filelines.preprocessor",
+    "std.code.filelines.comments": "std.code.filelines.comments",
+    "std.code.filelines.total": "std.code.filelines.total",
+    "std.code.length.total": "std.code.length.total",
+    "std.code.lines.code": "std.code.lines.code",
+    "std.code.lines.preprocessor": "std.code.lines.preprocessor",
+    "std.code.lines.comments": "std.code.lines.comments",
+    "std.code.lines.total": "std.code.lines.total",
+    "std.code.longlines": "std.code.longlines",
+    "std.code.longlines.limit=120": "std.code.longlines.limit=120",
+    "std.code.magic.numbers": "std.code.magic.numbers",
+    "std.code.magic.numbers.simplier": "std.code.magic.numbers.simplier",
+    "std.code.member.fields": "std.code.member.fields",
+    "std.code.member.globals": "std.code.member.globals",
+    "std.code.member.classes": "std.code.member.classes",
+    "std.code.member.structs": "std.code.member.structs",
+    "std.code.member.interfaces": "std.code.member.interfaces",
+    "std.code.member.types": "std.code.member.types",
+    "std.code.member.methods": "std.code.member.methods",
+    "std.code.member.namespaces": "std.code.member.namespaces",
+    "std.code.maintindex.simple": "std.code.maintindex.simple",
+    "std.code.ratio.comments": "std.code.ratio.comments",
+    "std.code.todo.comments": "std.code.todo.comments",
+    "std.code.todo.strings": "std.code.todo.strings",
+    "std.suppress": "std.suppress",
+    "std.general.procerrors": "std.general.procerrors",
+    "std.general.size": "std.general.size",
 }
 GEN_DATAFILE_ONLY = False
 
@@ -323,12 +353,15 @@ def readCSVfile(datapath, module_base):
                         for each in FILELIST[filename]:
                             # iterate over all entries of current filename
                             if each[4] == "global":
+                                # try:
                                 for c in range(0, len(criteria_values)):
                                     old_values = each[8]
-                                    old_values[c] = int(criteria_values[c]) + int(
+                                    old_values[c] = float(criteria_values[c]) + float(
                                         old_values[c]
                                     )
                                 each[4] = "file"
+                                # except ValueError:
+                                # breakpoint()
 
                     FILELIST[filename].append(
                         [

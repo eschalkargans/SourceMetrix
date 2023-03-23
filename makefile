@@ -37,7 +37,7 @@ SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_
 # ---
 
 SUBFOLDER=IDPSC-MASK_S2
-SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_Codes/S2_L1L2/IDPSCs/IDPSCs/$(SUBFOLDER)
+SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_Codes/S2_L1L2/IDPSCs/IDPSCs
 
 # ---
 
@@ -57,7 +57,8 @@ LOG_LEVEL=INFO
 
 # configure diagram settings
 # to add a new criteria: you add to CRITERIA_LIST the metrix++ argument AND create and add target to target 'criterias'
-CRITERIA_LIST = std.code.complexity.cyclomatic std.code.lines.code std.code.filelines.comments
+# CRITERIA_LIST = std.code.complexity.cyclomatic std.code.lines.code std.code.filelines.comments
+CRITERIA_LIST = std.code.complexity.cyclomatic std.code.complexity.maxindent std.code.filelines.code std.code.filelines.preprocessor std.code.filelines.comments std.code.filelines.total std.code.length.total std.code.lines.code std.code.lines.preprocessor std.code.lines.comments std.code.lines.total std.code.longlines std.code.longlines.limit=120 std.code.magic.numbers std.code.magic.numbers.simplier std.code.member.fields std.code.member.globals std.code.member.classes std.code.member.structs std.code.member.interfaces std.code.member.types std.code.member.methods std.code.member.namespaces std.code.maintindex.simple std.code.ratio.comments std.code.todo.comments std.code.todo.strings std.suppress std.general.procerrors std.general.size 
 DIAGRAM_STYLE=diagram_style.js
 # settigs for each diagram
 CANVAS_WIDTH=600
