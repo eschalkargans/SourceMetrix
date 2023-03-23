@@ -7,10 +7,10 @@ $(VERBOSE).SILENT:
 # settings to invoke metrix++; adapt path if necessary
 # PYTHON=/usr/bin/python
 # METRIXPP=/opt/metrixplusplus/metrix++.py
-METRIXDB=metrixpp.db
 
-PYTHON=$(shell where python)
-METRIXPP="/d/Profils/eschalk/dev/tools/metrixplusplus/metrix++.py"
+PYTHON=$(shell which python3)
+# PYTHON=/usr/bin/python3
+METRIXPP=/mnt/hgfs/eschalk/tools/metrixplusplus/metrix++.py
 
 ANALYSE=script/canalyse.py
 
@@ -22,11 +22,30 @@ CHARTMINJS=https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js
 #SRCPATH=./../../../SW/Public
 #MODULE_BASE=30_Appl
 
-SRCPATH='/d/Profils/eschalk/dev/cs/Project Documentation/Requests from Bidders/Source Codes/S2_L1L2'
-MODULE_BASE=
+# ---
+# SUBFOLDER=GMV-lib
+# SUBFOLDER=IDPSCs
+# SUBFOLDER=OLQC
+# SUBFOLDER=compress_tile_image
+SUBFOLDER=cots
+# SUBFOLDER=libcommon2
+
+SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_Codes/S2_L1L2/$(SUBFOLDER)
+# ---
+# SUBFOLDER=S2_L1L2
+# SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_Codes
+# ---
+
+SUBFOLDER=IDPSC-MASK_S2
+SRCPATH=/mnt/hgfs/eschalk/cs/Project_Documentation/Requests_from_Bidders/Source_Codes/S2_L1L2/IDPSCs/IDPSCs/$(SUBFOLDER)
+
+# ---
+
+MODULE_BASE=$(SUBFOLDER)
+METRIXDB=$(SUBFOLDER)__metrixpp.db
 
 # configure directories
-REPORTDIR=./html
+REPORTDIR=./html/$(SUBFOLDER)
 DATADIR=./data
 STYLEDIR=./style
 JSCRIPTDIR=./javascript
@@ -34,6 +53,7 @@ SCRIPTDIR=./script
 INSTALLDIR=./highlight
 HIGHLIGHT_CSS=styles/vs.css
 DOCDIR=./doc
+LOG_LEVEL=INFO 
 
 # configure diagram settings
 # to add a new criteria: you add to CRITERIA_LIST the metrix++ argument AND create and add target to target 'criterias'
@@ -60,17 +80,26 @@ criteria_nav := $(foreach criteria, $(CRITERIA_LIST), "<a target= 'criteria_fram
 
 all: check directories $(REPORTDIR)/index.html criterias
 
-criterias: $(METRIXDB)
-	echo Converting database into file $(DATADIR_REL)/$(MODULE_BASE).js
-	$(PYTHON) $(METRIXPP) export --log-level=ERROR | tail --lines=+1 > $(DATADIR)/$(MODULE_BASE).csv
-	$(PYTHON) $(ANALYSE) --srcpath=$(SRCPATH) --modulebase=$(MODULE_BASE) --datadir=$(DATADIR) --reportdir=$(REPORTDIR) --installdir=$(INSTALLDIR) --highlight-css=$(HIGHLIGHT_CSS) --styledir=$(STYLEDIR)
+criterias: $(DATADIR_REL)/$(MODULE_BASE).js
 	echo Generating HTML files for $(CRITERIA_LIST)
-	$(PYTHON) $(METRIXPP) view --log-level=ERROR --format=python > $(DATADIR)/$(MODULE_BASE).py
+	$(PYTHON) $(METRIXPP) view --log-level=$(LOG_LEVEL) --format=python --db-file=$(METRIXDB) -- $(SRCPATH) > $(DATADIR)/$(MODULE_BASE).py
 	$(PYTHON) $(SCRIPTDIR)/mpp-view2js.py --modulebase=$(MODULE_BASE) --datadir=$(DATADIR) --reportdir=$(REPORTDIR) --styledir=$(STYLEDIR) --diagram-width=$(CANVAS_WIDTH) --diagram-height=$(CANVAS_HEIGHT) $(DATADIR)/$(MODULE_BASE).py
+
+$(DATADIR_REL)/$(MODULE_BASE).js: $(DATADIR)/$(MODULE_BASE).csv
+	echo Converting database into file $(DATADIR_REL)/$(MODULE_BASE).js
+	$(PYTHON) $(ANALYSE) --srcpath=$(SRCPATH) --modulebase=$(MODULE_BASE) --datadir=$(DATADIR) --reportdir=$(REPORTDIR) --installdir=$(INSTALLDIR) --highlight-css=$(HIGHLIGHT_CSS) --styledir=$(STYLEDIR)
+	
+$(DATADIR)/$(MODULE_BASE).csv: $(METRIXDB).txt
+	echo Converting database into file $(DATADIR)/$(MODULE_BASE).csv
+	$(PYTHON) $(METRIXPP) export --log-level=$(LOG_LEVEL) --db-file=$(METRIXDB) -- $(SRCPATH) | tail --lines=+1 > $(DATADIR)/$(MODULE_BASE).csv
+	
+$(METRIXDB).txt: $(METRIXDB)
+	echo Generating text report for $(METRIXDB)
+	$(PYTHON) $(METRIXPP) view --db-file=$(METRIXDB) -- $(SRCPATH) > $(METRIXDB).txt
 
 $(METRIXDB):
 	echo Generating data for $(CRITERIA_LIST)
-	$(PYTHON) $(METRIXPP) collect --log-level=ERROR --db-file=$(METRIXDB) $(addprefix '--', $(CRITERIA_LIST)) -- $(SRCPATH)/$(MODULE_BASE)
+	$(PYTHON) $(METRIXPP) collect --log-level=$(LOG_LEVEL) --db-file=$(METRIXDB) $(addprefix '--', $(CRITERIA_LIST)) -- $(SRCPATH)/$(MODULE_BASE)
 
 $(REPORTDIR)/index.html: 
 	echo Generating HTML header of $(REPORTDIR)/index.html 
@@ -112,6 +141,7 @@ $(REPORTDIR)/index.html:
 	echo "	</body>\n</html>" >> $(REPORTDIR)/index.html
 
 directories:
+	echo "directories target, $(REPORTDIR) $(DATADIR)"
 	$(info $(shell mkdir -p $(REPORTDIR) $(DATADIR)))
 
 clean:

@@ -11,7 +11,7 @@
 import csv
 import os
 import math
-import cgi
+import html
 import io
 import getopt
 import sys
@@ -31,13 +31,15 @@ HIGHLIGHT_REL = "./highlight"
 HIGHLIGHT_CSS = "styles/vs.css"
 ## html styling and diagram styling settings get here
 STYLE_REL = "./style"
-## dictionary assigning criteria mnenonics to more human readable format 
-CRITERIA_LABELS = {"std.code.complexity.cyclomatic" : "cyclomatic complexity", \
-"std.code.filelines.comments" : "lines of comment", \
-"std.code.lines.code" : "lines of code"}
+## dictionary assigning criteria mnenonics to more human readable format
+CRITERIA_LABELS = {
+    "std.code.complexity.cyclomatic": "cyclomatic complexity",
+    "std.code.filelines.comments": "lines of comment",
+    "std.code.lines.code": "lines of code",
+}
 GEN_DATAFILE_ONLY = False
 
-loglevels = {"silent" : 0, "standard" : 1, "verbose" : 2}
+loglevels = {"silent": 0, "standard": 1, "verbose": 2}
 LOGLEVEL = 1
 
 ##
@@ -54,84 +56,164 @@ def createHTMLfile(path, filename):
     if not os.path.exists(path):
         os.makedirs(path)
     path_rel = os.path.relpath(os.curdir, path)
-    log(2, "Creating HTML file " + path +  os.sep + filename)
-    with io.open(path +  os.sep + filename, "w") as ofile:
-        ofile.write(u"<!DOCTYPE html> \
+    log(2, "Creating HTML file " + path + os.sep + filename)
+    with io.open(path + os.sep + filename, "w") as ofile:
+        ofile.write(
+            "<!DOCTYPE html> \
   <html>      \n \
 	<head>  \n \
-	  <title>")
-        ofile.write(os.path.splitext(filename)[0] + u"</title>")
-        ofile.write(u"	      <link rel='stylesheet' type='text/css' href='" + path_rel + os.sep + STYLE_REL + os.sep + u"/style.css'>\n")
-        ofile.write(u"	      <link rel='stylesheet' type='text/css' href='" + path_rel + os.sep + HIGHLIGHT_REL + os.sep + HIGHLIGHT_CSS + u"'> \n \
-    <script src='" + path_rel + os.sep + HIGHLIGHT_REL + os.sep + u"highlight.pack.js'></script>     \n \
+	  <title>"
+        )
+        ofile.write(os.path.splitext(filename)[0] + "</title>")
+        ofile.write(
+            "	      <link rel='stylesheet' type='text/css' href='"
+            + path_rel
+            + os.sep
+            + STYLE_REL
+            + os.sep
+            + "/style.css'>\n"
+        )
+        ofile.write(
+            "	      <link rel='stylesheet' type='text/css' href='"
+            + path_rel
+            + os.sep
+            + HIGHLIGHT_REL
+            + os.sep
+            + HIGHLIGHT_CSS
+            + "'> \n \
+    <script src='"
+            + path_rel
+            + os.sep
+            + HIGHLIGHT_REL
+            + os.sep
+            + "highlight.pack.js'></script>     \n \
     <script>hljs.initHighlightingOnLoad();</script>  \n \
 	</head>     \n \
-  <body><span id='" + filename + u"@top'></span>")
+  <body><span id='"
+            + filename
+            + "@top'></span>"
+        )
     ofile.close()
+
 
 ##
 # Append the closing section to an HTML file.
 #
 # It is assumed that the file \c path + os.sep + \c filename exists. To the existing file the closing HTML-tags are appended.
 #
-# @param path       absolute or relative path to the HTML file 
-# @param filename   filename of the HTML file 
+# @param path       absolute or relative path to the HTML file
+# @param filename   filename of the HTML file
 ##
 def finalizeHTMLfile(path, filename):
     with io.open(path + os.sep + filename, "a") as ofile:
-        ofile.write(u"<script>var elem = document.getElementById('NavSection'); \n \
+        ofile.write(
+            "<script>var elem = document.getElementById('NavSection'); \n \
 	elem.addEventListener('change', JumpToSection); \n \
 	function JumpToSection() { \n \
 		window.location.href = '#' + document.getElementById('NavSection').value; \n \
-    }</script>")
-        ofile.write(u"  </body>\n  </html>")
+    }</script>"
+        )
+        ofile.write("  </body>\n  </html>")
     ofile.close()
+
 
 ##
 # Append portions of sourcecode to an existing HTML file.
-# 
+#
 # It is assumed that the file \c path + os.sep + \c destfilename exists. To this file a portion of the sourcecode from file srcfilename
-# is copied. The portion is defined by line_start and line_end (both incl.). Each line is prepended by HTML tags to show linenumbers. The 
+# is copied. The portion is defined by line_start and line_end (both incl.). Each line is prepended by HTML tags to show linenumbers. The
 # complete portion is prepended by a header, which defines an anchor point and shows criterias and respective labels.
 ##
-def copyCode2HTML(path, destfilename, srcfilename, region, type, line_start, line_end, criterias, labels):
-    with io.open(srcfilename, "r", errors='replace') as srcfile:
+def copyCode2HTML(
+    path,
+    destfilename,
+    srcfilename,
+    region,
+    type,
+    line_start,
+    line_end,
+    criterias,
+    labels,
+):
+    with io.open(srcfilename, "r", errors="replace") as srcfile:
         src_txt = srcfile.readlines()
         with io.open(path + os.sep + destfilename, "a") as destfile:
-            destfile.write(u"<span class='detail_wrapper' id='" + destfilename + u"@" + str(line_start) + u"-" + str(line_end) + u"'>\n")
-            log(2, type + ": " + region + u" (" + str(line_start) + u" - " + str(line_end) + ")")
-            destfile.write(u"<span class='detail_type_region'>" + type + u": " + region + u" (" + str(line_start) + u" - " + str(line_end) + ")</span>\n")
+            destfile.write(
+                "<span class='detail_wrapper' id='"
+                + destfilename
+                + "@"
+                + str(line_start)
+                + "-"
+                + str(line_end)
+                + "'>\n"
+            )
+            log(
+                2,
+                type
+                + ": "
+                + region
+                + " ("
+                + str(line_start)
+                + " - "
+                + str(line_end)
+                + ")",
+            )
+            destfile.write(
+                "<span class='detail_type_region'>"
+                + type
+                + ": "
+                + region
+                + " ("
+                + str(line_start)
+                + " - "
+                + str(line_end)
+                + ")</span>\n"
+            )
             i = 0
             for criteriaValue in criterias:
                 if not criteriaValue == "":
                     if i < len(labels):
-                        if CRITERIA_LABELS.has_key(labels[i]):
-                            destfile.write(u"<span class='detail_" + labels[i].replace(".", "_") + u"'>")
-                            destfile.write(CRITERIA_LABELS[labels[i]] + u": " + str(criteriaValue) + u"</span>\n")
+                        if labels[i] in CRITERIA_LABELS:
+                            destfile.write(
+                                "<span class='detail_"
+                                + labels[i].replace(".", "_")
+                                + "'>"
+                            )
+                            destfile.write(
+                                CRITERIA_LABELS[labels[i]]
+                                + ": "
+                                + str(criteriaValue)
+                                + "</span>\n"
+                            )
                 i += 1
             if region == "" or region == "__global__":
                 # __global__ line count bug
-                lastline = line_end -1
+                lastline = line_end - 1
             else:
                 lastline = line_end
-            destfile.write(u"<button onClick=\"window.location.href='#" + destfilename + u"@top'\">top &#x25B4;</button></span>\n")
-            destfile.write(u"    <pre class='sourcecode'><code class='#language-c'>\n")
-            for linenum in range(line_start -1, lastline):
-                destfile.write(u"<span title='" + str(linenum +1) + u"'>")
-                destfile.write(cgi.escape(src_txt[linenum]))
-                destfile.write(u"</span>")
-            destfile.write(u"    </code></pre>")
+            destfile.write(
+                "<button onClick=\"window.location.href='#"
+                + destfilename
+                + "@top'\">top &#x25B4;</button></span>\n"
+            )
+            destfile.write("    <pre class='sourcecode'><code class='#language-c'>\n")
+            for linenum in range(line_start - 1, lastline):
+                destfile.write("<span title='" + str(linenum + 1) + "'>")
+                destfile.write(html.escape(src_txt[linenum]))
+                destfile.write("</span>")
+            destfile.write("    </code></pre>")
         destfile.close()
     srcfile.close()
+
 
 ##
 # Generates a javascript file consisting of the detailed data definitions as collected in \c filelist.
 #
-# Creates the file \c datadir + os.sep + \modulebase + '.js' (existing file will be overwritten). Content of the file 
+# Creates the file \c datadir + os.sep + \modulebase + '.js' (existing file will be overwritten). Content of the file
 # is definition of a single array \c combined. Each entry is an array of the following structure:
-# 
+#
 # [html_path, html_filename, filename, region, type, line_start, line_end, rest of the row (i. e. all criteria values)]
-# 
+#
 # Where (srcpath + os.sep + modulebase) is stripped from filename.
 #
 # @param datadir        absolute or relative path to the javascript file
@@ -141,7 +223,7 @@ def copyCode2HTML(path, destfilename, srcfilename, region, type, line_start, lin
 def generateDetailedDatafile(datadir, modulebase, srcpath):
     log(2, "Generating detailed data file " + datadir + os.sep + modulebase + ".js")
     with io.open(datadir + os.sep + modulebase + ".js", "w") as moduleJSfile:
-        moduleJSfile.write(u"var combined = [")
+        moduleJSfile.write("var combined = [")
         # filelist is a dictionary with key=filename and value is a list of entries
         # each entry itself is a list [html_path, html_filename, filename, region, type, line_start, line_end, rest of the row (i. e. all criteria values)
         for fileData in FILELIST.values():
@@ -155,38 +237,58 @@ def generateDetailedDatafile(datadir, modulebase, srcpath):
                 filename = fileEntry[2].replace(srcpath + os.sep + modulebase, "")
                 criteriaValues = ""
                 for val in fileEntry[8]:
-                    criteriaValues += str(val) + u", "
-                criteriaValues = criteriaValues[:-2]    # remove trailig ", "
-                dataPerFile += (u"['" + filename + u"', '" + fileEntry[3] + u"', '" + fileEntry[4] + u"', '" + str(fileEntry[5]) + u"', " \
-                    + u", " + str(fileEntry[6]) + u", " + criteriaValues + u"],\n")
+                    criteriaValues += str(val) + ", "
+                criteriaValues = criteriaValues[:-2]  # remove trailig ", "
+                dataPerFile += (
+                    "['"
+                    + filename
+                    + "', '"
+                    + fileEntry[3]
+                    + "', '"
+                    + fileEntry[4]
+                    + "', '"
+                    + str(fileEntry[5])
+                    + "', "
+                    + ", "
+                    + str(fileEntry[6])
+                    + ", "
+                    + criteriaValues
+                    + "],\n"
+                )
                 if count == len(FILELIST.values()):
-                    dataPerFile = dataPerFile[:-1]      # remove trialing ","
+                    dataPerFile = dataPerFile[:-1]  # remove trialing ","
                 moduleJSfile.write(dataPerFile)
-        moduleJSfile.write(u"];\n")
+        moduleJSfile.write("];\n")
     moduleJSfile.close()
+
 
 ##
 # Read and parse a csv file.
 #
 ##
 def readCSVfile(datapath, module_base):
-    log(1, "Opening database file " + datapath + os.sep + module_base + '.csv')
-    with open(datapath + os.sep + module_base + '.csv') as csv_file:
+    log(1, "Opening database file " + datapath + os.sep + module_base + ".csv")
+    with open(datapath + os.sep + module_base + ".csv") as csv_file:
         # read in cvs output of the 'export' command of metrix++
-        csv_reader = csv.reader(csv_file, delimiter=',')
+        csv_reader = csv.reader(csv_file, delimiter=",")
         line_count = 0
         for row in csv_reader:
             # first row contains header defintion
+            # print(row)
             if line_count == 0:
                 criterias = row[6:]
-                for i in range(0, len(criterias)):      # 'for criteria in criterias': not possible to modify criteria
-                    criterias[i] = criterias[i].replace(':', '.')
+                for i in range(
+                    0, len(criterias)
+                ):  # 'for criteria in criterias': not possible to modify criteria
+                    criterias[i] = criterias[i].replace(":", ".")
                 log(2, "Processing following criterias: ")
                 log(2, criterias)
             else:
                 filename = row[0]
                 codefilename = filename.replace(SRCPATH, "")
-                html_path = REPORTDIR_REL + (os.path.split(codefilename)[0]).replace(module_base, "")
+                html_path = REPORTDIR_REL + (os.path.split(codefilename)[0]).replace(
+                    module_base, ""
+                )
                 html_filename = os.path.split(filename)[1] + ".html"
                 region = row[1]
                 metrix_type = row[2]
@@ -195,14 +297,14 @@ def readCSVfile(datapath, module_base):
                 for c in range(0, len(criteria_values)):
                     if criteria_values[c] == "":
                         criteria_values[c] = 0
-                
+
                 try:
                     line_start = int(row[4])
                     line_end = int(row[5])
                 except:
                     line_start = -1
                 # only parse entries with a valid line_start
-                if (line_start > -1):
+                if line_start > -1:
                     # Add an entry to filelist with key=filename and value=an empty list
                     if not filename in FILELIST:
                         FILELIST[filename] = []
@@ -213,74 +315,112 @@ def readCSVfile(datapath, module_base):
                             if each[4] == "file":
                                 for c in range(0, len(criteria_values)):
                                     old_values = each[8]
-                                    old_values[c] = int(criteria_values[c]) + int(old_values[c])
-                    
+                                    old_values[c] = int(criteria_values[c]) + int(
+                                        old_values[c]
+                                    )
+
                     if metrix_type == "file":
                         for each in FILELIST[filename]:
                             # iterate over all entries of current filename
                             if each[4] == "global":
                                 for c in range(0, len(criteria_values)):
                                     old_values = each[8]
-                                    old_values[c] = int(criteria_values[c]) + int(old_values[c])
+                                    old_values[c] = int(criteria_values[c]) + int(
+                                        old_values[c]
+                                    )
                                 each[4] = "file"
-                    
-                    FILELIST[filename].append([html_path, html_filename, filename, region, metrix_type, modified, line_start, line_end, criteria_values])
+
+                    FILELIST[filename].append(
+                        [
+                            html_path,
+                            html_filename,
+                            filename,
+                            region,
+                            metrix_type,
+                            modified,
+                            line_start,
+                            line_end,
+                            criteria_values,
+                        ]
+                    )
             line_count += 1
         log(2, "Read " + str(line_count) + " entries.")
     csv_file.close()
     return criterias
 
+
 ##
 # Print version information and exit
 ##
 def printVersion():
-    print "canalyse.py 0.4 "
-    print "Copyright (c) 2020 Marc Stoerzel"
+    print("canalyse.py 0.4 ")
+    print("Copyright (c) 2020 Marc Stoerzel")
+
 
 ##
 # Print info how to use from command line.
 ##
 def printUsage():
-    print "usage:", sys.argv[0], "[OPTION]"
-    print "Parses the cvs output of metrix++ to generate HTML-files and optionally a Javascript datafile."
-    print "Options and arguments:"
-    print "  -h, --help                 print this help message and exit"
-    print "  --silent                   turn on silent mode: no output except in case of error"
-    print "  --verbose                  enable more elaborative output"
-    print "  -v, --version              print version information and exit"
-    print "  --gen-datafile-only        generate only javascript data file (no HTML is generated)"
-    print "  -s, --srcpath=DIR          directory containing the sourcecode root folder"
-    print "                                 defaults to:", SRCPATH
-    print "  -m, --modulebase=DIR       shall be name of the sourcecode's root folder"
-    print "                                 defaults to:", MODULE_BASE
-    print "  -d, --datadir=DIR          directory containing the raw data of the metrix++ export"
-    print "                                 defaults to:", DATADIR_REL
-    print "  -r, --reportdir=DIR        the output directory of the generated html files"
-    print "                                 defaults to:", REPORTDIR_REL
-    print "  -i, --installdir=DIR       location where 'highlight' package is installed"
-    print "                                 defaults to:", HIGHLIGHT_REL
-    print "  -c, --highlight-css=FILE   filename of CSS file to be used for syntax highlighting"
-    print "                                  defaults to:", HIGHLIGHT_CSS
-    print "  -y, --styledir=DIR         directory containing the generic style.css file"
-    print "                                  defaults to:", STYLE_REL
-    print "  -l, --criteria-labels=DICT dictionary, where "
-    print "                                 key = mnemnonic of the criteria and "
-    print "                                 value = human readable label"
-    print "                                 defaults to:", CRITERIA_LABELS
+    print("usage:", sys.argv[0], "[OPTION]")
+    print(
+        "Parses the cvs output of metrix++ to generate HTML-files and optionally a Javascript datafile."
+    )
+    print("Options and arguments:")
+    print("  -h, --help                 print this help message and exit")
+    print(
+        "  --silent                   turn on silent mode: no output except in case of error"
+    )
+    print("  --verbose                  enable more elaborative output")
+    print("  -v, --version              print version information and exit")
+    print(
+        "  --gen-datafile-only        generate only javascript data file (no HTML is generated)"
+    )
+    print(
+        "  -s, --srcpath=DIR          directory containing the sourcecode root folder"
+    )
+    print("                                 defaults to:", SRCPATH)
+    print("  -m, --modulebase=DIR       shall be name of the sourcecode's root folder")
+    print("                                 defaults to:", MODULE_BASE)
+    print(
+        "  -d, --datadir=DIR          directory containing the raw data of the metrix++ export"
+    )
+    print("                                 defaults to:", DATADIR_REL)
+    print(
+        "  -r, --reportdir=DIR        the output directory of the generated html files"
+    )
+    print("                                 defaults to:", REPORTDIR_REL)
+    print(
+        "  -i, --installdir=DIR       location where 'highlight' package is installed"
+    )
+    print("                                 defaults to:", HIGHLIGHT_REL)
+    print(
+        "  -c, --highlight-css=FILE   filename of CSS file to be used for syntax highlighting"
+    )
+    print("                                  defaults to:", HIGHLIGHT_CSS)
+    print(
+        "  -y, --styledir=DIR         directory containing the generic style.css file"
+    )
+    print("                                  defaults to:", STYLE_REL)
+    print("  -l, --criteria-labels=DICT dictionary, where ")
+    print("                                 key = mnemnonic of the criteria and ")
+    print("                                 value = human readable label")
+    print("                                 defaults to:", CRITERIA_LABELS)
+
 
 ##
 # Print global paramter settings.
 ##
 def dumpParameters():
-    print "Parameters set as"
-    print "  --srcpath         =", SRCPATH
-    print "  --modulebase      =", MODULE_BASE
-    print "  --datadir         =", DATADIR_REL
-    print "  --reportdir       =", REPORTDIR_REL
-    print "  --installdir      =", HIGHLIGHT_REL
-    print "  --highlight-css   =", HIGHLIGHT_CSS
-    print "  --styledir        =", STYLE_REL
-    print "  --criteria-labels =", CRITERIA_LABELS
+    print("Parameters set as")
+    print("  --srcpath         =", SRCPATH)
+    print("  --modulebase      =", MODULE_BASE)
+    print("  --datadir         =", DATADIR_REL)
+    print("  --reportdir       =", REPORTDIR_REL)
+    print("  --installdir      =", HIGHLIGHT_REL)
+    print("  --highlight-css   =", HIGHLIGHT_CSS)
+    print("  --styledir        =", STYLE_REL)
+    print("  --criteria-labels =", CRITERIA_LABELS)
+
 
 ##
 # Print a log message to stdout if loglevel is set appropriate.
@@ -294,17 +434,31 @@ def log(level, message):
     if (level) < 0:
         sys.exit(-level)
 
+
 ##
 # Scan commandline arguments.
-# 
+#
 # Scan command line arguments and set global parameters accordingly (use '--help' on commandline to get list of
 # supported command line arguments).
 ##
 def scanArguments():
     global LOGLEVEL, SRCPATH, MODULE_BASE, DATADIR_REL, REPORTDIR_REL, HIGHLIGHT_REL, HIGHLIGHT_CSS, STYLE_REL, CRITERIA_LABELS, GEN_DATAFILE_ONLY
     shortOptions = "hvs:m:d:r:i:c:y:l:"
-    longOptions = ["help", "version", "verbose", "silent", "srcpath=", "modulebase=", "datadir=", \
-        "reportdir=", "installdir=", "highlight-css=", "styledir=", "criteria-labels=", "gen-datafile-only"]
+    longOptions = [
+        "help",
+        "version",
+        "verbose",
+        "silent",
+        "srcpath=",
+        "modulebase=",
+        "datadir=",
+        "reportdir=",
+        "installdir=",
+        "highlight-css=",
+        "styledir=",
+        "criteria-labels=",
+        "gen-datafile-only",
+    ]
     opts = []
     remainder = []
 
@@ -312,12 +466,15 @@ def scanArguments():
         opts, remainder = getopt.gnu_getopt(sys.argv[1:], shortOptions, longOptions)
     except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err)
+        print(str(err))
         printUsage()
         sys.exit()
 
-    for o, a, in opts:
-        if o in("--help", "-h"):
+    for (
+        o,
+        a,
+    ) in opts:
+        if o in ("--help", "-h"):
             printUsage()
             sys.exit()
         elif o in ("--version", "-v"):
@@ -345,12 +502,17 @@ def scanArguments():
             try:
                 CRITERIA_LABELS = ast.literal_eval(a)
             except:
-                log(-1, "Error while trying to parse following argument for 'criteria-labels':" + str(a))
+                log(
+                    -1,
+                    "Error while trying to parse following argument for 'criteria-labels':"
+                    + str(a),
+                )
         elif o == "--gen-datafile-only":
             GEN_DATAFILE_ONLY = True
 
         if len(remainder) > 0:
             log(-1, "Unrecogniozed argument: " + str(remainder))
+
 
 ##
 # Iterate over the global filelist and generate an HTML-file for each entry.
@@ -368,18 +530,50 @@ def generateHTMLfiles(criterias):
         # create a HTML file only once per file
         createHTMLfile(fileData[0], fileData[1])
         with io.open(fileData[0] + os.sep + fileData[1], "a") as ofile:
-            ofile.write(u"<span id='details_head'>Browse details of file " + fileData[1].replace(".html", "") + u" <select id='NavSection' onChange='JumpToSection'>")
+            ofile.write(
+                "<span id='details_head'>Browse details of file "
+                + fileData[1].replace(".html", "")
+                + " <select id='NavSection' onChange='JumpToSection'>"
+            )
             for fileData in entries:
                 # iterate over each entry for every file
-                ofile.write(u"<option value='" + fileData[1] + u"@" + str(fileData[6]) + u"-" + str(fileData[7]) + u"'s>")
-                ofile.write(fileData[4] + u": " + fileData[3] + u"(" + str(fileData[6]) + u" - " + str(fileData[7]) + u")</option>\n")
-            ofile.write(u"</select></span>")
+                ofile.write(
+                    "<option value='"
+                    + fileData[1]
+                    + "@"
+                    + str(fileData[6])
+                    + "-"
+                    + str(fileData[7])
+                    + "'s>"
+                )
+                ofile.write(
+                    fileData[4]
+                    + ": "
+                    + fileData[3]
+                    + "("
+                    + str(fileData[6])
+                    + " - "
+                    + str(fileData[7])
+                    + ")</option>\n"
+                )
+            ofile.write("</select></span>")
         ofile.close()
         for fileData in entries:
             # iterate over each entry for every file
-            copyCode2HTML(fileData[0], fileData[1], fileData[2], fileData[3], fileData[4], fileData[6], fileData[7], fileData[8], criterias)
+            copyCode2HTML(
+                fileData[0],
+                fileData[1],
+                fileData[2],
+                fileData[3],
+                fileData[4],
+                fileData[6],
+                fileData[7],
+                fileData[8],
+                criterias,
+            )
         finalizeHTMLfile(fileData[0], fileData[1])
     log(1, str(line_count) + " files processed.\n")
+
 
 FILELIST = dict()
 scanArguments()
